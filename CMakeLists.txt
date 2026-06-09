@@ -1,74 +1,116 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.28)
 project(pairs_uav_testing)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_definitions(-Wall)
 add_definitions(-Wextra)
+add_definitions(-Wpedantic)
 
-set(CATKIN_DEPENDENCIES
-  cmake_modules
-  roscpp
+if(ENABLE_COVERAGE)
+  message(WARNING "building for coverage, the performance might be limited")
+
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage -fprofile-arcs")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage -fprofile-arcs")
+
+  add_definitions("-O1")
+  add_definitions("-g")
+endif()
+
+set(DEPENDENCIES
+  ament_cmake
+  rclcpp
+  rclcpp_components
   pairs_lib
   pairs_msgs
-  )
+  tf2_ros
+  backward_ros
+)
 
-set(LIBRARIES
-  PairsUavTesting_TestGeneric
-  )
+foreach(DEP IN LISTS DEPENDENCIES)
+  find_package(${DEP} REQUIRED)
+endforeach()
 
-find_package(catkin REQUIRED COMPONENTS
-  ${CATKIN_DEPENDENCIES}
-  )
+add_library(PairsUavTesting_PairsUavTesting)
+add_library(pairs_uav_testing::pairs_uav_testing ALIAS PairsUavTesting_PairsUavTesting)
+set_target_properties(PairsUavTesting_PairsUavTesting
+  PROPERTIES
+    EXPORT_NAME pairs_uav_testing
+    OUTPUT_NAME pairs_uav_testing
+)
 
-catkin_package(
-  INCLUDE_DIRS include
-  CATKIN_DEPENDS ${CATKIN_DEPENDENCIES}
-  LIBRARIES ${LIBRARIES}
-  )
+target_sources(PairsUavTesting_PairsUavTesting
+  PRIVATE
+    "src/test_generic.cpp"
+  PUBLIC FILE_SET HEADERS BASE_DIRS "include"
+  FILES
+    "include/pairs_uav_testing/test_generic.h"
+)
 
-include_directories(
-  include
-  ${catkin_INCLUDE_DIRS}
-  )
-
-# Test Generic
-
-add_library(PairsUavTesting_TestGeneric
-  src/test_generic.cpp
-  )
-
-target_link_libraries(PairsUavTesting_TestGeneric
-  ${catkin_LIBRARIES}
-  )
+target_link_libraries(PairsUavTesting_PairsUavTesting
+  PUBLIC
+    rclcpp::rclcpp
+    pairs_lib::pairs_lib
+    tf2_ros::tf2_ros
+    ${pairs_msgs_TARGETS}
+)
 
 ## --------------------------------------------------------------
 ## |                           Testing                          |
 ## --------------------------------------------------------------
 
-if(CATKIN_ENABLE_TESTING AND PAIRS_ENABLE_TESTING)
-
-  message(WARNING "Testing enabled.")
+if(ENABLE_TESTS)
 
   add_subdirectory(test)
+
+  if(NOT DEFINED ENV{IN_NIX_SHELL})
+    message(WARNING "Compiling lint tests")
+    find_package(ament_cmake_clang_format REQUIRED)
+    ament_clang_format(CONFIG_FILE "${PROJECT_SOURCE_DIR}/.clang-format")
+    find_package(ament_cmake_xmllint REQUIRED)
+    ament_xmllint()
+  endif()
 
 endif()
 
 ## --------------------------------------------------------------
-## |                           Install                          |
+## |                           install                          |
 ## --------------------------------------------------------------
 
-install(TARGETS ${LIBRARIES}
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
-  )
+install(
+  TARGETS PairsUavTesting_PairsUavTesting
+  EXPORT export_${PROJECT_NAME}
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+  FILE_SET HEADERS DESTINATION "include/${PROJECT_NAME}"
+)
 
-install(DIRECTORY include/pairs_uav_testing/
-  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-  )
+install(
+  DIRECTORY launch
+  DESTINATION share/${PROJECT_NAME}
+)
 
-install(DIRECTORY launch config
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-  )
+install(
+  DIRECTORY config
+  DESTINATION share/${PROJECT_NAME}
+)
+
+ament_export_targets(
+  export_${PROJECT_NAME} HAS_LIBRARY_TARGET
+)
+
+ament_export_include_directories(
+  "include/${PROJECT_NAME}"
+)
+
+ament_export_libraries(
+  PairsUavTesting_PairsUavTesting
+)
+
+ament_export_dependencies(
+  ${DEPENDENCIES}
+)
+
+ament_package()

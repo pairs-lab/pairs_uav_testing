@@ -39,10 +39,10 @@ bool Tester::test(void) {
   }
 
   {
-    auto [success, message] = uh_->gotoRel(1, 2, 3, 1);
+    auto [success, message] = uh_->gotoAbs(0, 0, 2.0, 0);
 
     if (!success) {
-      RCLCPP_ERROR(node_->get_logger(), "goto relative failed with message: '%s'", message.c_str());
+      RCLCPP_ERROR(node_->get_logger(), "goto failed with message: '%s'", message.c_str());
       return false;
     }
   }
