@@ -138,7 +138,7 @@ public:
 
   tuple<std::optional<pairs_msgs::msg::TrajectoryReference>, std::optional<Eigen::VectorXd>, string> getPathSrv(const pairs_msgs::msg::Path &path_in);
 
-  bool mrsSystemReady(void);
+  bool pairsSystemReady(void);
 
   tuple<bool, string> validateReference(const pairs_msgs::msg::ReferenceStamped &msg);
 
@@ -275,7 +275,7 @@ protected:
 
   bool initialized_ = false;
 
-  bool mrsSystemReady(void);
+  bool pairsSystemReady(void);
 
 private:
   void spin();

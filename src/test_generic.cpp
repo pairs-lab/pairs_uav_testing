@@ -338,7 +338,7 @@ tuple<bool, string> UAVHandler::takeoff(void) {
 
     RCLCPP_INFO_THROTTLE(node_->get_logger(), *clock_, 1000, "[%s]: waiting for the PAIRS UAV System", name_.c_str());
 
-    if (mrsSystemReady()) {
+    if (pairsSystemReady()) {
       RCLCPP_INFO(node_->get_logger(), "[%s]: PAIRS UAV System is ready", name_.c_str());
       break;
     }
@@ -816,7 +816,7 @@ tuple<bool, string> UAVHandler::activateMidAir(void) {
 
     RCLCPP_INFO_THROTTLE(node_->get_logger(), *clock_, 1000, "[%s]: waiting for the PAIRS UAV System", name_.c_str());
 
-    if (mrsSystemReady()) {
+    if (pairsSystemReady()) {
       RCLCPP_INFO(node_->get_logger(), "[%s]: PAIRS UAV System is ready", name_.c_str());
       break;
     }
@@ -2306,9 +2306,9 @@ bool UAVHandler::hasGoal(void) {
 
 //}
 
-/* mrsSystemReady() //{ */
+/* pairsSystemReady() //{ */
 
-bool UAVHandler::mrsSystemReady(void) {
+bool UAVHandler::pairsSystemReady(void) {
 
   bool got_control_manager_diag     = sh_control_manager_diag_.hasMsg();
   bool got_uav_manager_diag         = sh_uav_manager_diag_.hasMsg();
