@@ -128,7 +128,7 @@ public:
 
   tuple<std::optional<pairs_msgs::TrajectoryReference>, std::optional<Eigen::VectorXd>, string> getPathSrv(const pairs_msgs::Path &path_in);
 
-  bool mrsSystemReady(void);
+  bool pairsSystemReady(void);
 
   tuple<bool, string> validateReference(const pairs_msgs::ReferenceStamped &msg);
 
@@ -241,7 +241,7 @@ protected:
 
   bool initialized_ = false;
 
-  bool mrsSystemReady(void);
+  bool pairsSystemReady(void);
 
 private:
   shared_ptr<ros::AsyncSpinner> spinner_;

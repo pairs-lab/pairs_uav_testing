@@ -193,7 +193,7 @@ tuple<bool, string> UAVHandler::takeoff(void) {
 
     ROS_INFO_THROTTLE(1.0, "[%s]: waiting for the PAIRS UAV System", name_.c_str());
 
-    if (mrsSystemReady()) {
+    if (pairsSystemReady()) {
       ROS_INFO("[%s]: PAIRS UAV System is ready", name_.c_str());
       break;
     }
@@ -445,7 +445,7 @@ tuple<bool, string> UAVHandler::activateMidAir(void) {
 
     ROS_INFO_THROTTLE(1.0, "[%s]: waiting for the PAIRS UAV System", name_.c_str());
 
-    if (mrsSystemReady()) {
+    if (pairsSystemReady()) {
       ROS_INFO("[%s]: PAIRS UAV System is ready", name_.c_str());
       break;
     }
@@ -1884,9 +1884,9 @@ bool UAVHandler::hasGoal(void) {
 
 //}
 
-/* mrsSystemReady() //{ */
+/* pairsSystemReady() //{ */
 
-bool UAVHandler::mrsSystemReady(void) {
+bool UAVHandler::pairsSystemReady(void) {
 
   bool got_control_manager_diag    = sh_control_manager_diag_.hasMsg();
   bool got_uav_manager_diag        = sh_uav_manager_diag_.hasMsg();
